@@ -20,7 +20,7 @@
     - name: import csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/switches.csv'
-      tags: always,vars,switchs
+      tags: always,vars
 
 
 # ============================================================================================================================================================
@@ -60,6 +60,6 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      when: switchs is defined
+      #when: switchs is defined
       tags: switchs
     
