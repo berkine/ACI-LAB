@@ -1,22 +1,25 @@
 ---
 - name: Playbook for Bring UP ACI Fabric
-  hosts: localhost
+  hosts: apics
   connection: local
   gather_facts: no
-
+  username: "admin"
+  password: "cisco123"
+  
   
 # ============================================================================================================================================================
 # Import Fabric Configuration Files
 # ============================================================================================================================================================
 
   vars:
+    
     config_file: "./Fabric01/ACI_fabric.yml"
     snapshot_tag: "1001" # must be set by AWX
 
   tasks:
-    - name: Import Main configuration file
-      include_vars:
-        file: "{{ config_file }}" # need to use a variable to set correct path
+    - name: import csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/switches.csv'
       tags: always,vars
 
 
@@ -26,7 +29,7 @@
 
     - name: Create a Snapshot
       aci_config_snapshot:
-        host: "{{ apic_host }}"
+        host: "{{ apics }}"
         username: "{{ username }}"
         password: "{{ password }}"
         state: present
@@ -46,7 +49,7 @@
     - name: Add fabric node
       aci_fabric_node:
         validate_certs: "false"
-        host: "{{ apic_host }}"
+        host: "{{ apics }}"
         username: "{{ username }}"
         password: "{{ password }}"
         serial: "{{ item.serial }}"
@@ -54,7 +57,7 @@
         switch: "{{ item.name }}"
         state: present
       delegate_to: localhost
-      with_items: "{{ switchs }}"
+      loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
       when: switchs is defined
