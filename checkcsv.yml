@@ -9,4 +9,4 @@
         src: '{{ playbook_dir }}/Fabric01/switches.csv'
     - name: "read csv"
       debug: msg= "{{ item.serial }}"
-      loop: '{{ spreadsheet }}'
+    #  loop: '{{ spreadsheet }}'
