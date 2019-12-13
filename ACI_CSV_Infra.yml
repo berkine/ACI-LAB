@@ -1,6 +1,6 @@
 ---
 - name: Playbook for Bring UP ACI Fabric
-  hosts: "192.168.1.144"
+  # hosts: "192.168.1.144"
   connection: local
   gather_facts: no
   
@@ -13,6 +13,7 @@
     
     config_file: "./Fabric01/ACI_fabric.yml"
     snapshot_tag: "1001" # must be set by AWX
+    ansible_host: "192.168.1.144"
     username: "admin"
     password: "cisco123"
   tasks:
@@ -28,7 +29,7 @@
 
     - name: Create a Snapshot
       aci_config_snapshot:
-        host: "{{ hosts }}"
+        host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
         state: present
@@ -48,7 +49,7 @@
     - name: Add fabric node
       aci_fabric_node:
         validate_certs: "false"
-        host: "{{ hosts }}"
+        host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
         serial: "{{ item.serial }}"
