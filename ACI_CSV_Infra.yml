@@ -28,7 +28,7 @@
 
     - name: Create a Snapshot
       aci_config_snapshot:
-        host: "{{ apics }}"
+        host: "{{ hosts }}"
         username: "{{ username }}"
         password: "{{ password }}"
         state: present
@@ -48,7 +48,7 @@
     - name: Add fabric node
       aci_fabric_node:
         validate_certs: "false"
-        host: "{{ apics }}"
+        host: "{{ hosts }}"
         username: "{{ username }}"
         password: "{{ password }}"
         serial: "{{ item.serial }}"
