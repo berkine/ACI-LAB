@@ -3,8 +3,6 @@
   hosts: apics
   connection: local
   gather_facts: no
-  username: "admin"
-  password: "cisco123"
   
   
 # ============================================================================================================================================================
@@ -15,7 +13,8 @@
     
     config_file: "./Fabric01/ACI_fabric.yml"
     snapshot_tag: "1001" # must be set by AWX
-
+    username: "admin"
+    password: "cisco123"
   tasks:
     - name: import csv
       csv_to_facts:
