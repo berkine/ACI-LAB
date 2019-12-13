@@ -20,7 +20,7 @@
     - name: import csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/switches.csv'
-      tags: always,vars
+      tags: always,vars,switchs
 
 
 # ============================================================================================================================================================
