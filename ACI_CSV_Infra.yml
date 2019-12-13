@@ -1,6 +1,6 @@
 ---
 - name: Playbook for Bring UP ACI Fabric
-  # hosts: "192.168.1.144"
+  hosts: "192.168.1.144"
   connection: local
   gather_facts: no
   
