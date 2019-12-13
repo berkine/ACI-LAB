@@ -7,6 +7,6 @@
     - name:  import csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/fw_list.csv'
-    - name: "read csv"
-      debug: msg= "{{ item.sno }}"
-      loop: '{{ spreadsheet }}'
+#    - name: "read csv"
+#      debug: msg= "{{ item.sno }}"
+#      loop: '{{ spreadsheet }}'
