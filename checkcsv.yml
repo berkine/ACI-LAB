@@ -8,5 +8,5 @@
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/switches.csv'
     - name: "read csv"
-      raw: echo {{ item }}
+      debug: msg= "{{ item.serial }}"
       loop: '{{ spreadsheet }}'
