@@ -62,7 +62,6 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      #when: switchs is defined
       tags: switchs
     
 # ============================================================================================================================================================
@@ -72,7 +71,6 @@
     - name: import tentant csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/tenant.csv'
-      #when: tenant is defined
       tags: tenant
 
     - name: Add a new tenant
@@ -88,5 +86,32 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      #when: tenant is defined
       tags: tenant
+
+# ============================================================================================================================================================
+# VRF  Provisioning
+# Add new VRF
+# ============================================================================================================================================================
+    - name: import vrf csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/vrf.csv'
+      tags: vrf
+
+    
+    - name: Add a new VRF to a tenant
+      aci_vrf:
+        validate_certs: "false"
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        vrf: "{{ item.name }}"
+        tenant: "{{ item.tn_name }}"
+        descr: "{{ item.description }}"
+        policy_control_preference: enforced
+        policy_control_direction: ingress
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vrf
