@@ -82,7 +82,7 @@
         username: "{{ username }}"
         password: "{{ password }}"
         tenant: "{{ item.name }}"
-        description: Production tenant
+        description: "{{ item.description }}"
         state: present
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
