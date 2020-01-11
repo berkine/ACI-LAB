@@ -75,18 +75,18 @@
       when: tenant is defined
       tags: tenant
 
-	- name: Add a new tenant
-	  aci_tenant:
-	  	validate_certs: "false"
-	    host: "{{ ansible_host }}"
-	    username: "{{ username }}"
-	    password: "{{ password }}"
-	    tenant: "{{ item.name }}"
-	    description: Production tenant
-	    state: present
-	  delegate_to: localhost
-  	  loop: '{{ spreadsheet }}'
+    - name: Add a new tenant
+      aci_tenant:
+        validate_certs: "false"
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.name }}"
+        description: Production tenant
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
       when: tenant is defined
-      tags: tenant
+      tags: switchs
