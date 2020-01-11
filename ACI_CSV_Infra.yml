@@ -89,4 +89,4 @@
       loop_control:
         pause: 1
       when: tenant is defined
-      tags: switchs
+      tags: tenant
