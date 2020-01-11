@@ -11,7 +11,7 @@
 
   vars:
     
-    config_file: "./Fabric01/ACI_fabric.yml"
+    #config_file: "./Fabric01/ACI_fabric.yml"
     snapshot_tag: "1001" # must be set by AWX
     ansible_host: "192.168.1.144"
     username: "admin"
@@ -45,7 +45,7 @@
     - name: import Switchs csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/switches.csv'
-      when: switchs is defined
+      #when: switchs is defined
       tags: switchs
 
     - name: Add fabric node
@@ -62,7 +62,7 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      when: switchs is defined
+      #when: switchs is defined
       tags: switchs
     
 # ============================================================================================================================================================
@@ -72,7 +72,7 @@
     - name: import tentant csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/tenant.csv'
-      when: tenant is defined
+      #when: tenant is defined
       tags: tenant
 
     - name: Add a new tenant
@@ -88,5 +88,5 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      when: tenant is defined
+      #when: tenant is defined
       tags: tenant
