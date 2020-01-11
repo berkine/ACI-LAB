@@ -105,7 +105,7 @@
         username: "{{ username }}"
         password: "{{ password }}"
         vrf: "{{ item.name }}"
-        tenant: "{{ item.tn_name }}"
+        tenant: "{{ item.tenant }}"
         descr: "{{ item.description }}"
         policy_control_preference: enforced
         policy_control_direction: ingress
