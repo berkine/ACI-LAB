@@ -1,0 +1,4 @@
+name,description,tenant,vrf
+BD001,BD numero1,TN001,vrf01
+BD002,BD numero2,TN001,vrf01
+BD003,BD numero3,TN001,vrf01
