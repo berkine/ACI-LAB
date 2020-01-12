@@ -184,6 +184,7 @@
 
     - name: Add a new EPG
       aci_epg:
+        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
