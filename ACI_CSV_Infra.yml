@@ -143,3 +143,29 @@
       loop_control:
         pause: 1
       tags: bd
+
+# ============================================================================================================================================================
+# AP  Provisioning
+# Add new AP
+# ============================================================================================================================================================
+
+    - name: import ap csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/ap.csv'
+      tags: ap 
+
+    - name: Add a new AP
+      aci_ap:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tenant }}"
+        ap: "{{ item.name }}"
+        description: "{{ item.description }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: ap
