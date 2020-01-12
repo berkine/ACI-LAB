@@ -16,7 +16,6 @@
     ansible_host: "192.168.1.144"
     username: "admin"
     password: "cisco123"
-    validate_certs: no
   tasks:
 
 
@@ -184,7 +183,6 @@
 
     - name: Add a new EPG
       aci_epg:
-        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
@@ -199,3 +197,46 @@
       loop_control:
         pause: 1
       tags: epg
+
+
+# ============================================================================================================================================================
+# VLAN Pool  Provisioning
+# Add new Vlan pool
+# ============================================================================================================================================================
+
+    - name: import vlan csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/vlan.csv'
+      tags: vlan 
+
+    - name: Add a new VLAN pool
+      aci_vlan_pool:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        pool: "{{ item.poolname }}"
+        pool_allocation_mode: "{{ item.alloc }}"
+        description: "{{ item.description }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vlan
+
+
+
+    - name: Add a new VLAN encap block
+      aci_vlan_pool_encap_block:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        pool: "{{ item.poolname }}"
+        block_start: "{{ item.start }}"
+        block_end: "{{ item.end }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vlan
