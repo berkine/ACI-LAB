@@ -1,0 +1,3 @@
+poolname,description,alloc,start,end
+Pool01_VMM,VMM pool,dynamic,10,20 
+Pool02_pys,physical pool,static,30,40 
