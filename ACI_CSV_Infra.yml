@@ -217,7 +217,6 @@
         username: "{{ username }}"
         password: "{{ password }}"
         pool: "{{ item.poolname }}"
-        pool_type: vlan
         pool_allocation_mode: "{{ item.alloc }}"
         description: "{{ item.description }}"
         state: present
