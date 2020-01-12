@@ -169,3 +169,31 @@
       loop_control:
         pause: 1
       tags: ap
+
+
+# ============================================================================================================================================================
+# EPG  Provisioning
+# Add new EPG
+# ============================================================================================================================================================
+
+    - name: import epg csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/epg.csv'
+      tags: epg 
+
+    - name: Add a new EPG
+      aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tenant }}"
+        ap: "{{ item.ap }}"
+        epg: "{{ item.name }}"
+        description: "{{ item.description }}"
+        bd: "{{ item.bd }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: epg
