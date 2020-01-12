@@ -183,6 +183,7 @@
 
     - name: Add a new EPG
       aci_epg:
+        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
@@ -211,6 +212,7 @@
 
     - name: Add a new VLAN pool
       aci_vlan_pool:
+        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
@@ -228,6 +230,7 @@
 
     - name: Add a new VLAN encap block
       aci_vlan_pool_encap_block:
+        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
