@@ -17,6 +17,7 @@
     ansible_host: "192.168.1.144"
     username: "admin"
     password: "cisco123"
+    validate_certs: no
   tasks:
 
 
