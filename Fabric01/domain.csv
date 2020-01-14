@@ -1,4 +1,4 @@
 domname,type,provider,vswitch
 phyDOM01,phys,NA,NA
 phyDOM02,phys,NA,NA
-vmmDOM01,vmm,vmware,dvs
+vmmDOM01,vmm,VMware,dvs
