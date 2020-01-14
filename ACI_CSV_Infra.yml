@@ -281,7 +281,7 @@
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
-        vm_provider: "{{ item.provider }}"        
+        #vm_provider: "{{ item.provider }}"        
         domain: "{{ item.domname }}"
         domain_type: "{{ item.type }}"
         state: present
