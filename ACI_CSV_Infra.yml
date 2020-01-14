@@ -281,9 +281,9 @@
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
+        vm_provider: "{{ item.provider }}"        
         domain: "{{ item.domname }}"
         domain_type: "{{ item.type }}"
-        vm_provider: "{{ item.provider }}"
         vswitch: "{{ item.vswitch }}"
         state: present
       delegate_to: localhost
