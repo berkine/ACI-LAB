@@ -1,0 +1,4 @@
+domname,type,poolname,allocmode,provider
+phyDOM01,phys,Pool02_pys,static,NA
+phyDOM02,phys,Pool02_pys,static,NA
+DVSWITCHACI,vmm,Pool01_VMM,dynamic,vmware
