@@ -301,6 +301,22 @@
         src: '{{ playbook_dir }}/Fabric01/bindingdom.csv'
       tags: bindingdom 
 
+    - name: Bind a physical domain to VLAN pool
+      aci_domain_to_vlan_pool:
+        validate_certs: no
+        output_level: debug
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        pool: "{{ item.poolname }}"
+        pool_allocation_mode: "{{ item.allocmode }}"
+        state: present
+      delegate_to: localhost
+      loop_control:
+        pause: 1
+      tags: bindingdom
 
     - name: Bind a VMM domain to VLAN pool
       aci_domain_to_vlan_pool:
@@ -314,24 +330,6 @@
         pool: "{{ item.poolname }}"
         pool_allocation_mode: "{{ item.allocmode }}"
         vm_provider: "{{ item.provider }}"
-        state: present
-      delegate_to: localhost
-      loop_control:
-        pause: 1
-      tags: bindingdom
-
-
-    - name: Bind a physical domain to VLAN pool
-      aci_domain_to_vlan_pool:
-        validate_certs: no
-        output_level: debug
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        domain: "{{ item.domname }}"
-        domain_type: "{{ item.type }}"
-        pool: "{{ item.poolname }}"
-        pool_allocation_mode: "{{ item.allocmode }}"
         state: present
       delegate_to: localhost
       loop_control:
