@@ -261,6 +261,7 @@
 # physical domain
     - name: Add a new physical domain
       aci_domain:
+        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
@@ -276,6 +277,7 @@
 # vmm
     - name: Add a new VMM domain
       aci_domain:
+        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
