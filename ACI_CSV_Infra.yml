@@ -274,14 +274,15 @@
         pause: 1
       tags: domain
 
-# vmm
+# vmm  # Error on this script
     - name: Add a new VMM domain
       aci_domain:
         validate_certs: no
+        output_level: debug
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
-        #vm_provider: "{{ item.provider }}"        
+        vm_provider: "{{ item.provider }}"
         domain: "{{ item.domname }}"
         domain_type: "{{ item.type }}"
         state: present
@@ -290,4 +291,43 @@
       loop_control:
         pause: 1
       tags: domain
+
+# ============================================================================================================================================================
+# Bind Vlan to Domain
+# Bind VMM & ohysical to Domain
+# ============================================================================================================================================================
+    - name: import bindingdom csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/bindingdom.csv'
+      tags: domain 
+
+
+    - name: Bind a VMM domain to VLAN pool
+      aci_domain_to_vlan_pool:
+        validate_certs: no
+        output_level: debug
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        pool: "{{ item.poolname }}"
+        pool_allocation_mode: "{{ item.allocmode }}"
+        vm_provider: "{{ item.provider }}"
+        state: present
+      delegate_to: localhost
+
+    - name: Bind a physical domain to VLAN pool
+      aci_domain_to_vlan_pool:
+        validate_certs: no
+        output_level: debug
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        pool: "{{ item.poolname }}"
+        pool_allocation_mode: "{{ item.allocmode }}"
+        state: present
+      delegate_to: localhost
 
