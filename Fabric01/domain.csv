@@ -1,0 +1,4 @@
+domname,type,provider,vswitch
+phyDOM01,phys_dom,NA,NA
+phyDOM02,phys_dom,NA,NA
+vmmDOM01,vmm,vmware,dvs
