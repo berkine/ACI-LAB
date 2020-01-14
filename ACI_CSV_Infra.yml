@@ -245,3 +245,48 @@
       loop_control:
         pause: 1
       tags: vlan
+
+
+# ============================================================================================================================================================
+# physical & VMM Provisioning
+# Add new domain name
+# ============================================================================================================================================================
+
+    - name: import domain csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/domain.csv'
+      tags: domain 
+
+
+# physical domain
+    - name: Add a new physical domain
+      aci_domain:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: domain
+
+# vmm
+    - name: Add a new VMM domain
+      aci_domain:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        vm_provider: "{{ item.provider }}"
+        vswitch: "{{ item.vswitch }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: domain
+
