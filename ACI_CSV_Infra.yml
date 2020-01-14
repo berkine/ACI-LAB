@@ -284,7 +284,6 @@
         vm_provider: "{{ item.provider }}"        
         domain: "{{ item.domname }}"
         domain_type: "{{ item.type }}"
-        vswitch: "{{ item.vswitch }}"
         state: present
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
