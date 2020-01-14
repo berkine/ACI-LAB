@@ -299,7 +299,7 @@
     - name: import bindingdom csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/bindingdom.csv'
-      tags: domain 
+      tags: bindingdom 
 
 
     - name: Bind a VMM domain to VLAN pool
@@ -316,6 +316,10 @@
         vm_provider: "{{ item.provider }}"
         state: present
       delegate_to: localhost
+      loop_control:
+        pause: 1
+      tags: bindingdom
+
 
     - name: Bind a physical domain to VLAN pool
       aci_domain_to_vlan_pool:
@@ -330,4 +334,7 @@
         pool_allocation_mode: "{{ item.allocmode }}"
         state: present
       delegate_to: localhost
+      loop_control:
+        pause: 1
+      tags: bindingdom
 
