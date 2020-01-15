@@ -34,8 +34,8 @@
         method: post
         path: /api/mo/uni.json
         content: |
-         {"configExportP":{"attributes":{"dn":"uni/fabric/configexp-PRE-{{ snapshot_tag }}",
-         "name":"PRE-{{ snapshot_tag }}","snapshot":"true","adminSt":"triggered","descr":"{{ awx_env }}"}}}
+         {"configExportP":{"attributes":{"dn":"uni/fabric/configexp-PRE-toto",
+         "name":"PRE-toto","snapshot":"true","adminSt":"triggered","descr":"toto"}
       tags: always,snapshot
 
 
