@@ -257,7 +257,7 @@
         src: '{{ playbook_dir }}/Fabric01/domain.csv'
       tags: domain 
 
-
+#TEST0001
     - name: Add vmm Doms via REST
       aci_rest:
         hostname: "{{ ansible_host }}"
