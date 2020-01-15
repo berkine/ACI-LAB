@@ -1,0 +1,6 @@
+memo pour git
+
+git status
+git pull https://github.com/berkine/ACI-LAB.git master
+git commit ACI_CSV_Infra.yml -m "validation"
+ git push origin master
