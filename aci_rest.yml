@@ -23,7 +23,7 @@
       aci_rest:
         validate_certs: no
         use_proxy: no
-        hostname: "{{ apic_host }}"
+        hostname: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
         method: post
