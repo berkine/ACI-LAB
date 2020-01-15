@@ -16,9 +16,14 @@
     ansible_host: "192.168.1.144"
     username: "admin"
     password: "cisco123"
+    
+    
   tasks:
 
-
+    - name: wait
+      wait_for: timeout=3
+      
+      
     - name: PRE-SNAPSHOT 
       aci_rest:
         validate_certs: no
@@ -34,6 +39,5 @@
       tags: always,snapshot
 
 
-    - name: wait
-      wait_for: timeout=3
+
  
