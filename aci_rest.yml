@@ -1,0 +1,39 @@
+---
+- name: Playbook for Bring UP ACI Fabric
+  hosts: "192.168.1.144"
+  connection: local
+  gather_facts: no
+  
+  
+# ============================================================================================================================================================
+# Import Fabric Configuration Files
+# ============================================================================================================================================================
+
+  vars:
+    
+    #config_file: "./Fabric01/ACI_fabric.yml"
+    snapshot_tag: "1001" # must be set by AWX
+    ansible_host: "192.168.1.144"
+    username: "admin"
+    password: "cisco123"
+  tasks:
+
+
+    - name: PRE-SNAPSHOT 
+      aci_rest:
+        validate_certs: no
+        use_proxy: no
+        hostname: "{{ apic_host }}"
+        username: "{{ username }}"
+        private_key: "{{ private_key }}"
+        method: post
+        path: /api/mo/uni.json
+        content: |
+         {"configExportP":{"attributes":{"dn":"uni/fabric/configexp-PRE-{{ snapshot_tag }}",
+         "name":"PRE-{{ snapshot_tag }}","snapshot":"true","adminSt":"triggered","descr":"{{ awx_env }}"}}}
+      tags: always,snapshot
+
+
+    - name: wait
+      wait_for: timeout=3
+ 
