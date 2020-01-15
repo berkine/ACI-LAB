@@ -275,22 +275,40 @@
       tags: domain
 
 # vmm  # Error on this script
-    - name: Add a new VMM domain
-      aci_domain:
-        validate_certs: no
-        output_level: debug
-        host: "{{ ansible_host }}"
+#    - name: Add a new VMM domain
+#      aci_domain:
+#        validate_certs: no
+#        output_level: debug
+#        host: "{{ ansible_host }}"
+#        username: "{{ username }}"
+#        password: "{{ password }}"
+#        vm_provider: "{{ item.provider }}"
+#        domain: "{{ item.domname }}"
+#        domain_type: "{{ item.type }}"
+#        state: present
+#      delegate_to: localhost
+#      loop: '{{ spreadsheet }}'
+#      loop_control:
+#        pause: 1
+#      tags: domain
+
+    - name: Add vmm Doms via REST
+      aci_rest:
+        hostname: "{{ ansible_host }}"
         username: "{{ username }}"
-        password: "{{ password }}"
-        vm_provider: "{{ item.provider }}"
-        domain: "{{ item.domname }}"
-        domain_type: "{{ item.type }}"
-        state: present
+        private_key: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.xml
+        method: post
+        content: |
+          <vmmDomP dn="uni/uni/vmmp-VMware/dom-{{ item.domname }}" name="{{ item.domname }}">
+          </vmmDomP>
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
       tags: domain
+
 
 # ============================================================================================================================================================
 # Bind Vlan to Domain
