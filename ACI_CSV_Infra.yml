@@ -205,10 +205,10 @@
 # Add new Vlan pool
 # ============================================================================================================================================================
 
-    - name: import vlan csv
+    - name: import vlan and domain csv
       csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/vlan.csv'
-      tags: vlan 
+        src: '{{ playbook_dir }}/Fabric01/vlandom.csv.csv'
+      tags: vlandom 
 
     - name: Add a new VLAN pool
       aci_vlan_pool:
@@ -224,7 +224,7 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      tags: vlan
+      tags: vlandom
 
 
 
@@ -244,7 +244,7 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      tags: vlan
+      tags: vlandom
 
 
 # ============================================================================================================================================================
@@ -252,11 +252,12 @@
 # Add new domain name
 # ============================================================================================================================================================
 
-    - name: import domain csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/domain.csv'
-      tags: domain 
+#    - name: import domain csv
+#      csv_to_facts:
+#        src: '{{ playbook_dir }}/Fabric01/domain.csv'
+#      tags: domain 
 
+#VMM DOMAIN creation
     - name: Add vmm Doms via REST
       aci_rest:
         hostname: "{{ ansible_host }}"
@@ -266,17 +267,33 @@
         path: /api/mo/uni.json
         method: post
         content: |
-          {"vmmDomP":{"attributes":{"dn":"uni/vmmp-VMware/dom-{{ item.domname }}","name":"{{ item.domname }}"}}}
+         {
+           "vmmDomP": {
+             "attributes": {
+               "dn":"uni/vmmp-VMware/dom-{{ item.domname }}",
+               "name":"{{ item.domname }}"
+             }
+             "children": [
+               {
+                 "infraRsVlanNs": {
+                   "attributes": {
+                     "tDn": "uni/infra/vlanns-{{ item.poolname }}-{{ item.alloc }}"
+                   }
+                 }    
+               }
+             ]
+           }
+         }                
       delegate_to: localhost
       when: ("{{ item.type }}" == "vmm")
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      tags: domain
+      tags: vlandom
 
 
 
-# physical domain
+# physical domain creation
     - name: Add a new physical domain
       aci_domain:
         validate_certs: no
@@ -291,53 +308,9 @@
       loop: '{{ spreadsheet }}'  
       loop_control:
         pause: 1
-      tags: domain
+      tags: vlandom
 
 
 
-# ============================================================================================================================================================
-# Bind Vlan to Domain
-# Bind VMM & ohysical to Domain
-# ============================================================================================================================================================
-    - name: import bindingdom csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/bindingdom.csv'
-      tags: bindingdom 
 
-    - name: Bind a physical domain to VLAN pool
-      aci_domain_to_vlan_pool:
-        validate_certs: no
-        output_level: debug
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        domain: "{{ item.domname }}"
-        domain_type: "{{ item.type }}"
-        pool: "{{ item.poolname }}"
-        pool_allocation_mode: "{{ item.allocmode }}"
-        state: present
-      delegate_to: localhost
-      when: ("{{ item.type }}" == "phys")  
-      loop: '{{ spreadsheet }}'
-      loop_control:
-        pause: 1
-      tags: bindingdom
-
-    - name: Bind a VMM domain to VLAN pool
-      aci_domain_to_vlan_pool:
-        validate_certs: no
-        output_level: debug
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        domain: "{{ item.domname }}"
-        domain_type: "{{ item.type }}"
-        pool: "{{ item.poolname }}"
-        pool_allocation_mode: "{{ item.allocmode }}"
-        vm_provider: "{{ item.provider }}"
-        state: present
-      delegate_to: localhost
-      loop_control:
-        pause: 1
-      tags: bindingdom
 
