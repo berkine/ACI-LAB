@@ -268,7 +268,7 @@
         content: |
           {"vmmDomP":{"attributes":{"dn":"uni/vmmp-VMware/dom-"{{ item.domname }}"","name":"{{ item.domname }}"}}}
       delegate_to: localhost
-      when: "{{ item.type }}" == "vmm"
+      when: {{ item.type }} == "vmm"
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
