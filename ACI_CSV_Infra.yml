@@ -272,7 +272,7 @@
              "attributes": {
                "dn":"uni/vmmp-VMware/dom-{{ item.domname }}",
                "name":"{{ item.domname }}"
-             }
+             },
              "children": [
                {
                  "infraRsVlanNs": {
