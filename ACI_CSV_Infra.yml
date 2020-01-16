@@ -207,7 +207,7 @@
 
     - name: import vlan and domain csv
       csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/vlandom.csv.csv'
+        src: '{{ playbook_dir }}/Fabric01/vlandom.csv'
       tags: vlandom 
 
     - name: Add a new VLAN pool
