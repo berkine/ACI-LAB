@@ -269,7 +269,7 @@
           {"vmmDomP":{"attributes":{"dn":"uni/vmmp-VMware/dom-"{{ item.domname }}"","name":"{{ item.domname }}"}}}
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
-      when: {{ item.type }} == "vmm"
+      when: '{{ item.type }}' == "vmm"
       loop_control:
         pause: 1
       tags: domain
@@ -288,7 +288,7 @@
         state: present
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
-      when: {{ item.type }} == "phys"      
+      when: '{{ item.type }}' == "phys"      
       loop_control:
         pause: 1
       tags: domain
