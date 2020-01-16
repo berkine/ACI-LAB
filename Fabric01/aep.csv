@@ -1,0 +1,4 @@
+name,domain,description
+AEP_phys01,phyDOM01,AEP for phy01
+AEP_phys02,phyDOM02,AEP for phy02
+AEP_VMM,DVSWITCHDOM,,AEP for VMM
