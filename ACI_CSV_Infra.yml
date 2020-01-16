@@ -235,7 +235,7 @@
         username: "{{ username }}"
         password: "{{ password }}"
         pool: "{{ item.poolname }}"
-        pool_allocation_mode: "{{ item.alloc }}"
+        pool_allocation_mode: "{{ item.allocmode }}"
         block_start: "{{ item.start }}"
         block_end: "{{ item.end }}"
         block_name: "{{ item.block }}"
