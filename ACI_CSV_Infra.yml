@@ -266,7 +266,7 @@
         path: /api/mo/uni.json
         method: post
         content: |
-          {"vmmDomP":{"attributes":{"dn":"uni/vmmp-VMware/dom-"{{ item.domname }}"","name":"{{ item.domname }}"}}}
+          {"vmmDomP":{"attributes":{"dn":"uni/vmmp-VMware/dom-{{ item.domname }}","name":"{{ item.domname }}"}}}
       delegate_to: localhost
       when: ("{{ item.type }}" == "vmm")
       loop: '{{ spreadsheet }}'
