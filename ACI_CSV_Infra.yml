@@ -317,6 +317,8 @@
         pool_allocation_mode: "{{ item.allocmode }}"
         state: present
       delegate_to: localhost
+      when: ("{{ item.type }}" == "phys")  
+      loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
       tags: bindingdom
