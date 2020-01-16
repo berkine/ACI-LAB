@@ -257,7 +257,6 @@
         src: '{{ playbook_dir }}/Fabric01/domain.csv'
       tags: domain 
 
-#TEST0001
     - name: Add vmm Doms via REST
       aci_rest:
         hostname: "{{ ansible_host }}"
@@ -267,9 +266,10 @@
         path: /api/mo/uni.json
         method: post
         content: |
-          {"vmmDomP":{"attributes":{"dn":"uni/vmmp-VMware/dom-DVSWITCHACI001","name":"DVSWITCHACI001"}}}
+          {"vmmDomP":{"attributes":{"dn":"uni/vmmp-VMware/dom-"{{ item.domname }}"","name":"{{ item.domname }}"}}}
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
+      when: {{ item.type }} == "vmm"
       loop_control:
         pause: 1
       tags: domain
@@ -288,27 +288,11 @@
         state: present
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
+      when: {{ item.type }} == "phys"      
       loop_control:
         pause: 1
       tags: domain
 
-# vmm  # Error on this script
-#    - name: Add a new VMM domain
-#      aci_domain:
-#        validate_certs: no
-#        output_level: debug
-#        host: "{{ ansible_host }}"
-#        username: "{{ username }}"
-#        password: "{{ password }}"
-#        vm_provider: "{{ item.provider }}"
-#        domain: "{{ item.domname }}"
-#        domain_type: "{{ item.type }}"
-#        state: present
-#      delegate_to: localhost
-#      loop: '{{ spreadsheet }}'
-#      loop_control:
-#        pause: 1
-#      tags: domain
 
 
 # ============================================================================================================================================================
