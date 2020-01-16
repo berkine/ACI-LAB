@@ -1,4 +1,4 @@
 domname,type,poolname,allocmode,description,alloc,start,end,block
 phyDOM01,phys,Pool01_pys,static,physical pool,static,30,40,blockphysic01
 phyDOM02,phys,Pool02_pys,static,physical pool,static,41,50,blockphysic02
-DVSWITCHDOM,vmm,Pool03_dyn,dynamic,Vmm Pool,dynamic,51,60,blockvmm01
+DVSWITCHDOM,vmm,Pool03_dyn,static,Vmm Pool,dynamic,51,60,blockvmm01
