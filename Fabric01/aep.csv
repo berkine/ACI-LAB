@@ -1,5 +1,5 @@
 name,domain,description,type
 AEP_phys01,phyDOM01,AEP for phy01,phys
 AEP_phys02,phyDOM02,AEP for phy02,phys
-AEP_VMM,DVSWITCHDOM,,AEP for VMM,vmm
+AEP_VMM,DVSWITCHDOM,AEP for VMM,vmm
 
