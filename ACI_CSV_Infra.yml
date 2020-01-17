@@ -311,7 +311,24 @@
         pause: 1
       tags: vlandom
 
+#Bind Vlan to physical domain
 
+    - name: Bind a physical domain to VLAN pool
+      aci_domain_to_vlan_pool:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        pool: "{{ item.poolname }}"
+        pool_allocation_mode: "{{ item.allocmode }}"
+        state: present
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "phys")    
+      loop: '{{ spreadsheet }}'  
+      loop_control:
+        pause: 1
+      tags: vlandom
 
 # ============================================================================================================================================================
 # AAEP provisionnibg
