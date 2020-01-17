@@ -280,11 +280,43 @@
                    "attributes": {
                      "tDn": "uni/infra/vlanns-{{ item.poolname }}-{{ item.alloc }}"
                    }
-                 }    
+                 }
+               },
+               {
+                 "vmmUsrAccP": {
+                   "attributes": {
+                     "annotation": "",
+                     "descr": "",
+                     "name": "VcenterCredential",
+                     "nameAlias": "",
+                     "ownerKey": "Kahina**33B",
+                     "ownerTag": "",
+                     "usr": "administrator@vsphere.local"
+                   }
+                 }
+               },
+               {
+                 "vmmCtrlrP": {
+                   "attributes": {
+                     "hostOrIp": "192.168.1.163",
+                     "name": "VcenterIP",
+                     "rootContName": "DC4"
+                   },
+                   "children": [
+                     {
+                       "vmmRsAcc": {
+                         "attributes": {
+                           "annotation": "",
+                           "tDn": "uni/vmmp-VMware/dom-DVSWITCHDOM/usracc-VcenterCredential"
+                         }
+                       }
+                     }
+                   ]
+                 }
                }
              ]
            }
-         }                
+         }                       
       delegate_to: localhost
       when: ("{{ item.type }}" == "vmm")
       loop: '{{ spreadsheet }}'
