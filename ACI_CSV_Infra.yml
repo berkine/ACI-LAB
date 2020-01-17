@@ -342,7 +342,7 @@
       tags: aep 
 
 #Add AEP and bind it to vmm domain
-    - name: Add AEP via REST
+    - name: Add AEP to VMM via REST
       aci_rest:
         hostname: "{{ ansible_host }}"
         username: "{{ username }}"
@@ -379,17 +379,33 @@
 
 #Add AEP and bind it to physical domain
 
-
-    - name: Add AEP to domain binding
-      aci_aep_to_domain: &binding_present
+    - name: Add AEP to physical via REST
+      aci_rest:
         hostname: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
         validate_certs: no
-        aep: "{{ item.name }}"
-        domain: "{{ item.domain }}"
-        domain_type: phys
-        state: present
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {
+           "infraAttEntityP": {
+             "attributes": {
+               "descr": "{{ item.description }}",
+               "dn": "uni/infra/attentp-{{ item.name }}",
+               "name": "{{ item.name }}",
+             },
+             "children": [
+               {
+                 "infraRsDomP": {
+                   "attributes": {
+                     "tDn": "uni/phys-{{ item.domain }}"
+                   }
+                 }    
+               }
+             ]
+           }
+         }    
       delegate_to: localhost
       when: ("{{ item.type }}" == "phys")
       loop: '{{ spreadsheet }}'
