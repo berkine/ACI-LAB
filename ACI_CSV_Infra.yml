@@ -299,6 +299,7 @@
                  "vmmCtrlrP": {
                    "attributes": {
                      "hostOrIp": "192.168.1.163",
+                     "dvsVersion": "unmanaged",
                      "name": "VcenterIP",
                      "rootContName": "DC4"
                    },
