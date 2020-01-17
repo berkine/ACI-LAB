@@ -315,6 +315,7 @@
 
     - name: Bind a physical domain to VLAN pool
       aci_domain_to_vlan_pool:
+        validate_certs: no
         host: "{{ ansible_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
