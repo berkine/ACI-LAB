@@ -460,7 +460,7 @@
     - name: import epg-to-domain csv
       csv_to_facts:
         src: '{{ playbook_dir }}/Fabric01/epg-to-domain.csv'
-      tags: bd-epg
+      tags: epg-dom
 
 
 # EPG  bind  to VMM domain
@@ -489,7 +489,7 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      tags: bd-epg
+      tags: epg-dom
 
 
 #EPG  bind  to physical domain
@@ -520,4 +520,4 @@
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      tags: bd-epg
+      tags: epg-dom
