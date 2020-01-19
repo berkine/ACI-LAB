@@ -64,145 +64,6 @@
         pause: 1
       tags: switchs
     
-# ============================================================================================================================================================
-# tenant  Provisioning
-# Add new Tenant
-# ============================================================================================================================================================
-    - name: import tentant csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/tenant.csv'
-      tags: tenant
-
-    - name: Add a new tenant
-      aci_tenant:
-        validate_certs: "false"
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        tenant: "{{ item.name }}"
-        description: "{{ item.description }}"
-        state: present
-      delegate_to: localhost
-      loop: '{{ spreadsheet }}'
-      loop_control:
-        pause: 1
-      tags: tenant
-
-# ============================================================================================================================================================
-# VRF  Provisioning
-# Add new VRF
-# ============================================================================================================================================================
-    - name: import vrf csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/vrf.csv'
-      tags: vrf
-
-    
-    - name: Add a new VRF to a tenant
-      aci_vrf:
-        validate_certs: "false"
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        vrf: "{{ item.name }}"
-        tenant: "{{ item.tenant }}"
-        descr: "{{ item.description }}"
-        policy_control_preference: enforced
-        policy_control_direction: ingress
-        state: present
-      delegate_to: localhost
-      loop: '{{ spreadsheet }}'
-      loop_control:
-        pause: 1
-      tags: vrf
-
-
-# ============================================================================================================================================================
-# AP  Provisioning
-# Add new AP
-# ============================================================================================================================================================
-
-    - name: import ap csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/ap.csv'
-      tags: ap 
-
-    - name: Add a new AP
-      aci_ap:
-        validate_certs: no
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        tenant: "{{ item.tenant }}"
-        ap: "{{ item.name }}"
-        description: "{{ item.description }}"
-        state: present
-      delegate_to: localhost
-      loop: '{{ spreadsheet }}'
-      loop_control:
-        pause: 1
-      tags: ap
-
-
-  
-
-# ============================================================================================================================================================
-# BD  & EPG & Provisioning
-# Add new BD
-# ============================================================================================================================================================
-    - name: import bd-epg csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/bd-epg.csv'
-      tags: bd-epg
-
-# ============================================================================================================================================================
-# BD  Provisioning
-# Add new BD
-# ============================================================================================================================================================
-
-    - name: Add Bridge Domain
-      aci_bd:
-        validate_certs: no
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        tenant: "{{ item.tenant }}"
-        bd: "BD_{{ item.vlanid }}"
-        vrf: "{{ item.vrf }}"
-        description : "{{ item.description }}"
-        multi_dest : bd-flood
-        l2_unknown_unicast : flood
-        state: present
-      delegate_to: localhost
-      loop: '{{ spreadsheet }}'
-      loop_control:
-        pause: 1
-      tags: bd-epg
-
-# ============================================================================================================================================================
-# EPG  Provisioning
-# Add new EPG
-# ============================================================================================================================================================
-
-
-    - name: Add a new EPG
-      aci_epg:
-        validate_certs: no
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        tenant: "{{ item.tenant }}"
-        ap: "{{ item.ap }}"
-        epg: "EPG_{{ item.vlanid }}"
-        description: "{{ item.description }}"
-        bd: "BD_{{ item.vlanid }}"
-        state: present
-      delegate_to: localhost
-      loop: '{{ spreadsheet }}'
-      loop_control:
-        pause: 1
-      tags: bd-epg
-
 
 # ============================================================================================================================================================
 # VLAN Pool  Provisioning
@@ -449,3 +310,214 @@
       loop_control:
         pause: 1
       tags: aep
+
+
+
+# ============================================================================================================================================================
+# tenant  Provisioning
+# Add new Tenant
+# ============================================================================================================================================================
+    - name: import tentant csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/tenant.csv'
+      tags: tenant
+
+    - name: Add a new tenant
+      aci_tenant:
+        validate_certs: "false"
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.name }}"
+        description: "{{ item.description }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: tenant
+
+# ============================================================================================================================================================
+# VRF  Provisioning
+# Add new VRF
+# ============================================================================================================================================================
+    - name: import vrf csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/vrf.csv'
+      tags: vrf
+
+    
+    - name: Add a new VRF to a tenant
+      aci_vrf:
+        validate_certs: "false"
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        vrf: "{{ item.name }}"
+        tenant: "{{ item.tenant }}"
+        descr: "{{ item.description }}"
+        policy_control_preference: enforced
+        policy_control_direction: ingress
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vrf
+
+
+# ============================================================================================================================================================
+# AP  Provisioning
+# Add new AP
+# ============================================================================================================================================================
+
+    - name: import ap csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/ap.csv'
+      tags: ap 
+
+    - name: Add a new AP
+      aci_ap:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tenant }}"
+        ap: "{{ item.name }}"
+        description: "{{ item.description }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: ap
+
+
+  
+
+# ============================================================================================================================================================
+# BD  & EPG & Provisioning
+# Add new BD
+# ============================================================================================================================================================
+    - name: import bd-epg csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/bd-epg.csv'
+      tags: bd-epg
+
+# ============================================================================================================================================================
+# BD  Provisioning
+# Add new BD
+# ============================================================================================================================================================
+
+    - name: Add Bridge Domain
+      aci_bd:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tenant }}"
+        bd: "BD_{{ item.vlanid }}"
+        vrf: "{{ item.vrf }}"
+        description : "{{ item.description }}"
+        multi_dest : bd-flood
+        l2_unknown_unicast : flood
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: bd-epg
+
+# ============================================================================================================================================================
+# EPG  Provisioning
+# Add new EPG
+# ============================================================================================================================================================
+
+
+    - name: Add a new EPG
+      aci_epg:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tenant }}"
+        ap: "{{ item.ap }}"
+        epg: "EPG_{{ item.vlanid }}"
+        description: "{{ item.description }}"
+        bd: "BD_{{ item.vlanid }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: bd-epg
+
+# ============================================================================================================================================================
+# EPG  to domain binding
+# bind epg to physical ou vmm domain 
+# ============================================================================================================================================================
+
+    - name: import epg-to-domain csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/epg-to-domain.csv'
+      tags: bd-epg
+
+
+# EPG  bind  to VMM domain
+
+    - name: Add EPG to VMM via REST
+      aci_rest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {
+           "fvRsDomAtt": {
+             "attributes": {
+               "dn": "uni/tn-{{ item.tenant }}/ap-{{ item.ap }}/epg-EPG_{{ item.vlanid }}/rsdomAtt-[uni/vmmp-VMware/dom-{{ item.domname }}]",
+               "encap": "vlan-{{ item.vlanid }}",
+               "numPorts": "10",
+               "tDn": "uni/vmmp-VMware/dom-{{ item.domname }}"
+             }
+           }
+         }
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "vmm")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: bd-epg
+
+
+#EPG  bind  to physical domain
+
+
+
+    - name: Add EPG to physical via REST
+      aci_rest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {
+           "fvRsDomAtt": {
+             "attributes": {
+               "dn": "uni/tn-{{ item.tenant }}/ap-{{ item.ap }}/epg-EPG_{{ item.vlanid }}/rsdomAtt-[uni/phys-{{ item.domname }}]",
+               "encap": "vlan-{{ item.vlanid }}",
+               "numPorts": "10",
+               "tDn": "uni/phys-{{ item.domname }}"
+             }
+           }
+         }
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "phys")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: bd-epg
