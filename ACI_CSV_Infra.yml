@@ -116,33 +116,6 @@
         pause: 1
       tags: vrf
 
-# ============================================================================================================================================================
-# BD  Provisioning
-# Add new BD
-# ============================================================================================================================================================
-    - name: import bd csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/bd.csv'
-      tags: bd
-
-    - name: Add Bridge Domain
-      aci_bd:
-        validate_certs: no
-        host: "{{ ansible_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        tenant: "{{ item.tenant }}"
-        bd: "{{ item.name }}"
-        vrf: "{{ item.vrf }}"
-        description : "{{ item.description }}"
-        multi_dest : bd-flood
-        l2_unknown_unicast : flood
-        state: present
-      delegate_to: localhost
-      loop: '{{ spreadsheet }}'
-      loop_control:
-        pause: 1
-      tags: bd
 
 # ============================================================================================================================================================
 # AP  Provisioning
@@ -171,15 +144,46 @@
       tags: ap
 
 
+  
+
+# ============================================================================================================================================================
+# BD  & EPG & Provisioning
+# Add new BD
+# ============================================================================================================================================================
+     - name: import bd-epg csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/bd-epg.csv'
+      tags: bd-epg
+
+# ============================================================================================================================================================
+# BD  Provisioning
+# Add new BD
+# ============================================================================================================================================================
+
+    - name: Add Bridge Domain
+      aci_bd:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tenant }}"
+        bd: "BD_{{ item.vlanid }}"
+        vrf: "{{ item.vrf }}"
+        description : "{{ item.description }}"
+        multi_dest : bd-flood
+        l2_unknown_unicast : flood
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: bd-epg
+
 # ============================================================================================================================================================
 # EPG  Provisioning
 # Add new EPG
 # ============================================================================================================================================================
 
-    - name: import epg csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/epg.csv'
-      tags: epg 
 
     - name: Add a new EPG
       aci_epg:
@@ -189,15 +193,15 @@
         password: "{{ password }}"
         tenant: "{{ item.tenant }}"
         ap: "{{ item.ap }}"
-        epg: "{{ item.name }}"
+        epg: "EPG_{{ item.vlanid }}"
         description: "{{ item.description }}"
-        bd: "{{ item.bd }}"
+        bd: "BD_{{ item.vlanid }}"
         state: present
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
-      tags: epg
+      tags: bd-epg
 
 
 # ============================================================================================================================================================
