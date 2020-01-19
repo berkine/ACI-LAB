@@ -150,10 +150,10 @@
 # BD  & EPG & Provisioning
 # Add new BD
 # ============================================================================================================================================================
-     - name: import bd-epg csv
-      csv_to_facts:
-        src: '{{ playbook_dir }}/Fabric01/bd-epg.csv'
-      tags: bd-epg
+    - name: import bd-epg csv
+     csv_to_facts:
+       src: '{{ playbook_dir }}/Fabric01/bd-epg.csv'
+     tags: bd-epg
 
 # ============================================================================================================================================================
 # BD  Provisioning
