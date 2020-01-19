@@ -516,7 +516,7 @@
            }
          }
       delegate_to: localhost
-      when: ("{{ item.type }}" == "phys")
+      when: ("{{ item.type }}" == "phy")
       loop: '{{ spreadsheet }}'
       loop_control:
         pause: 1
