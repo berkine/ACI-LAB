@@ -141,6 +141,28 @@
              },
              "children": [
                {
+                  "vmmVSwitchPolicyCont": {
+                    "attributes": {
+                      "annotation": "",
+                      "descr": "",
+                      "nameAlias": ""
+                    },
+                    "children": [
+                      {
+                        "vmmRsVswitchExporterPol": {
+                          "attributes": {
+                            "activeFlowTimeOut": "60",
+                            "annotation": "",
+                            "idleFlowTimeOut": "15",
+                            "samplingRate": "0",
+                            "tDn": "uni/infra/vmmexporterpol-vrni"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+               {
                  "infraRsVlanNs": {
                    "attributes": {
                      "tDn": "uni/infra/vlanns-{{ item.poolname }}-{{ item.alloc }}"
