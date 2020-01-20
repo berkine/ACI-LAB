@@ -531,8 +531,6 @@
            "fvRsDomAtt": {
              "attributes": {
                "dn": "uni/tn-{{ item.tenant }}/ap-{{ item.ap }}/epg-EPG_{{ item.vlanid }}/rsdomAtt-[uni/phys-{{ item.domname }}]",
-               "encap": "vlan-{{ item.vlanid }}",
-               "numPorts": "10",
                "tDn": "uni/phys-{{ item.domname }}"
              }
            }
