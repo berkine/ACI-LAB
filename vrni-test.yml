@@ -1,0 +1,36 @@
+---
+- name: Playbook for Bring UP ACI Fabric
+  hosts: dc5apic01
+  connection: local
+  gather_facts: no
+  
+  
+
+# Netflow on VMM activation
+
+
+    - name: import vrni csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/vrni-test.csv'
+      tags: vrni
+
+
+
+    - name: Activate Netflow VRNI on EPG via REST
+      aci_rest:
+        hostname: "{{ inventory_hostname }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {"fvRsDomAtt":{"attributes": {"dn": "{{ item.dnname }}","netflowPref":"enabled",
+          }}}
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vrni
+
+  
