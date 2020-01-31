@@ -1,0 +1,515 @@
+---
+- name: Playbook for Bring UP ACI Fabric
+  hosts: aps004.ehc.adp.com
+  connection: local
+  gather_facts: no
+  
+  
+# ============================================================================================================================================================
+# Import Fabric Configuration Files
+# ============================================================================================================================================================
+
+  vars:
+    
+    snapshot_tag: "1001" # must be set by AWX
+    ansible_host: aps004.ehc.adp.com
+    username: "admin"
+    password: "cisco123"
+  tasks:
+
+
+
+# ============================================================================================================================================================
+# Take a snaphot of current configuration
+# ============================================================================================================================================================
+
+    - name: Create a Snapshot
+      aci_config_snapshot:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: present
+        export_policy: default
+        max_count: 10
+        description: Backups taken before new configs are applied.
+        validate_certs: "false"
+      delegate_to: localhost
+      tags: always,snapshot
+
+# ============================================================================================================================================================
+# Switch Provisioning
+# >> GUI >> Fabric > Fabric Membership
+# ============================================================================================================================================================
+    - name: import Switchs csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/switches.csv'
+      #when: switchs is defined
+      tags: switchs
+
+    - name: Add fabric node
+      aci_fabric_node:
+        validate_certs: "false"
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        serial: "{{ item.serial }}"
+        node_id: "{{ item.nodeId }}"
+        switch: "{{ item.name }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: switchs
+    
+# ============================================================================================================================================================
+# Interface Policy Provisioning
+# ============================================================================================================================================================
+    - name: import InterfacePolicy csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/intpol.csv'
+      #when: switchs is defined
+      tags: intpolicy
+      
+    - name: Add Link Level Policies via REST
+      aci_rest:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+          {"fabricHIfPol":{"attributes":{"autoNeg":"{{ item.auto_neg }}","descr":"","dn":"uni/infra/hintfpol-{{ item.policyname }}","fecMode":"inherit","linkDebounce":"100","name":"{{ item.policyname }}","nameAlias":"","ownerKey":"","ownerTag":"","speed":"{{ item.speed }}"}}}
+          
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "linklevel")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: intpolicy
+
+      
+    - name: Add CDP Policies via REST
+      aci_rest:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+          {"cdpIfPol":{"attributes":{"adminSt":"{{ item.AdminState }}","descr":"","dn":"uni/infra/cdpIfP-{{ item.policyname }}","name":"{{ item.policyname }}","nameAlias":"","ownerKey":"","ownerTag":""}}}
+          
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "cdp")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: intpolicy
+
+    - name: Add LLDP Policies via REST
+      aci_rest:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+          {"lldpIfPol":{"attributes":{"adminRxSt":"{{ item.RxState }}","adminTxSt":"{{ item.TxState }}","descr":"","dn":"uni/infra/lldpIfP-{{ item.policyname }}","name":"{{ item.policyname }}","nameAlias":"","ownerKey":"","ownerTag":""}}}
+          
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "lldp")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: intpolicy
+
+      
+    - name: Add Port-Channel Policies via REST
+      aci_rest:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+          {"lacpLagPol":{"attributes":{"ctrl":"fast-sel-hot-stdby,graceful-conv","descr":"","dn":"uni/infra/lacplagp-{{ item.policyname }}","maxLinks":"16","minLinks":"1","mode":"{{ item.mode }}","name":"{{ item.policyname }}","nameAlias":"","ownerKey":"","ownerTag":""}}}
+          
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "portchannel")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: intpolicy
+
+      
+# ============================================================================================================================================================
+
+  
+# ============================================================================================================================================================
+# Add VPC Domains
+# ============================================================================================================================================================
+    - name: import Switchs id csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/vpc_domain.csv'
+      #when: switchs is defined
+      tags: vpc
+
+    - name: Add Port-Channel Policies via REST
+      aci_rest:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+          {"fabricProtPol":{"attributes":{"annotation":"","descr":"","dn":"uni/fabric/protpol","name":"default","nameAlias":"","ownerKey":"","ownerTag":"","pairT":"explicit"},"children":[{"fabricExplicitGEp":{"attributes":{"dn":"uni/fabric/protpol/expgep-vpc-explictGrp{{ item.switch1 }}{{ item.switch2 }}","id":"{{ item.domainid }}","name":"vpc-explictGrp{{ item.switch1 }}{{ item.switch2 }}"},"children":[{"fabricRsVpcInstPol":{"attributes":{"tnVpcInstPolName":"default"}}},{"fabricNodePEp":{"attributes":{"descr":"","id":"{{ item.switch2 }}","name":"","nameAlias":"","podId":"1"}}},{"fabricNodePEp":{"attributes":{"descr":"","id":"{{ item.switch1 }}","name":"","nameAlias":"","podId":"1"}}}]}}]}}
+          
+      delegate_to: localhost
+      #when: ("{{ item.type }}" == "portchannel")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vpc
+ 
+
+# ============================================================================================================================================================
+# Add VLAN   & Domains
+# ============================================================================================================================================================
+
+    - name: import vlan and domain csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/vlandom.csv'
+      tags: vlandom 
+
+    - name: Add a new VLAN pool
+      aci_vlan_pool:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        pool: "{{ item.poolname }}"
+        pool_allocation_mode: "{{ item.alloc }}"
+        description: "{{ item.description }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vlandom
+
+
+
+    - name: Add a new VLAN encap block
+      aci_vlan_pool_encap_block:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        pool: "{{ item.poolname }}"
+        allocation_mode: "{{ item.allocmode }}" 
+        pool_allocation_mode: "{{ item.alloc }}"
+        block_start: "{{ item.start }}"
+        block_end: "{{ item.end }}"
+        block_name: "{{ item.block }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vlandom
+
+
+
+# physical domain creation
+    - name: Add a new physical domain
+      aci_domain:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        state: present
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "phys")    
+      loop: '{{ spreadsheet }}'  
+      loop_control:
+        pause: 1
+      tags: vlandom
+
+#Bind Vlan to physical domain
+
+    - name: Bind a physical domain to VLAN pool
+      aci_domain_to_vlan_pool:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        domain: "{{ item.domname }}"
+        domain_type: "{{ item.type }}"
+        pool: "{{ item.poolname }}"
+        pool_allocation_mode: "{{ item.allocmode }}"
+        state: present
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "phys")    
+      loop: '{{ spreadsheet }}'  
+      loop_control:
+        pause: 1
+      tags: vlandom
+
+# ============================================================================================================================================================
+# AAEP provisionnibg
+# Add AAEP
+# ============================================================================================================================================================
+
+    - name: import aep csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/aep.csv'
+      tags: aep 
+
+
+
+#Add AEP and bind it to physical domain
+
+    - name: Add AEP to physical via REST
+      aci_rest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {"infraAttEntityP": {"attributes": {"descr": "{{ item.description }}","dn": "uni/infra/attentp-{{ item.name }}","name": "{{ item.name }}",},
+             "children": [{"infraRsDomP": {"attributes": {"tDn": "uni/phys-{{ item.domain }}"}}}]}}    
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "phys")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: aep
+
+      
+      
+
+
+# ============================================================================================================================================================
+# tenant  Provisioning
+# Add new Tenant
+# ============================================================================================================================================================
+    - name: import tentant csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/tn-info.csv'
+      tags: tenant
+
+    - name: Add a new tenant
+      aci_tenant:
+        validate_certs: "false"
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tnname }}"
+        description: "{{ item.tndesc }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: tenant
+
+
+
+# VRF  Provisioning
+
+    
+    - name: Add a new VRF to a tenant
+      aci_vrf:
+        validate_certs: "false"
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        vrf: "{{ item.vrfname }}"
+        tenant: "{{ item.tnname }}"
+        descr: "{{ item.vrfname }}"
+        policy_control_preference: enforced
+        policy_control_direction: ingress
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: tenant
+
+
+
+# AP  Provisioning
+
+    - name: Add a new AP
+      aci_ap:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tnname }}"
+        ap: "{{ item.apname }}"
+        description: "{{ item.apname }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: tenant
+
+# BD  Provisioning
+
+    - name: Add Bridge Domain
+      aci_bd:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tnname }}"
+        bd: "BD_{{ item.vlanid }}"
+        vrf: "{{ item.vrfname }}"
+        description : "{{ item.vlandesc }}"
+        multi_dest : bd-flood
+        l2_unknown_unicast : flood
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: tenant
+
+# EPG  Provisioning
+
+
+    - name: Add a new EPG
+      aci_epg:
+        validate_certs: no
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        tenant: "{{ item.tnname }}"
+        ap: "{{ item.apname }}"
+        epg: "EPG_{{ item.vlanid }}"
+        description: "{{ item.vlandesc }}"
+        bd: "BD_{{ item.vlanid }}"
+        state: present
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: tenant
+
+
+# ============================================================================================================================================================
+# EPG Association
+#
+# ============================================================================================================================================================
+
+    - name: import epg-to-domain csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/epg-to-domain.csv'
+      tags: epg-dom
+
+
+# EPG  bind  to VMM domain
+
+    - name: Add EPG to VMM via REST
+      aci_rest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {"fvRsDomAtt":{"attributes": {"dn": "uni/tn-{{ item.tnname }}/ap-{{ item.apname }}/epg-EPG_{{ item.vlanid }}/rsdomAtt-[uni/vmmp-VMware/dom-{{ item.domname }}]","encap": "vlan-{{ item.vlanid }}",
+          "numPorts": "10","tDn": "uni/vmmp-VMware/dom-{{ item.domname }}"}}}
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "vmm")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: epg-dom
+
+
+
+#EPG  bind  to physical domain
+
+
+
+    - name: Add EPG to physical via REST
+      aci_rest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {"fvRsDomAtt": {"attributes": {"dn": "uni/tn-{{ item.tnname }}/ap-{{ item.apname }}/epg-EPG_{{ item.vlanid }}/rsdomAtt-[uni/phys-{{ item.domname }}]","tDn": "uni/phys-{{ item.domname }}"}}}
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "phy")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: epg-dom
+
+      
+
+# ============================================================================================================================================================
+# Netflow on VMM activation
+#
+# ============================================================================================================================================================
+
+    - name: import epg-to-domain csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/Fabric01/epg-to-domain.csv'
+      tags: vrni
+
+
+
+    - name: Activate Netflow VRNI on EPG via REST
+      aci_rest:
+        hostname: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {"fvRsDomAtt":{"attributes": {"dn": "uni/tn-{{ item.tnname }}/ap-{{ item.apname }}/epg-EPG_{{ item.vlanid }}/rsdomAtt-[uni/vmmp-VMware/dom-{{ item.domname }}]","netflowPref":"enabled",
+          }}}
+      delegate_to: localhost
+      when: ("{{ item.type }}" == "vmm")
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vrni
+
+
+      
+- name: Query fabric nodes
+  aci_fabric_node:
+    host: apic
+    username: admin
+    password: SomeSecretPassword
+    state: query
+  delegate_to: localhost
+  register: query_result
+  debug: var = query_result
+  
+  
+  
+  
+  
+  
+  
+  
