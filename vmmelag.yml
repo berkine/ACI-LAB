@@ -1,0 +1,46 @@
+---
+- name: Configure Enhanced LAG Policy
+  hosts: "192.168.1.144"
+  connection: local
+  gather_facts: no
+  
+
+  vars:
+    
+    #config_file: "./Fabric01/ACI_fabric.yml"
+    snapshot_tag: "1001" # must be set by AWX
+    ansible_host: "192.168.1.144"
+    username: "admin"
+    password: "cisco123"
+  
+  tasks:
+# VMM EPG Enhanced LAG
+
+
+    - name: import epg to modifie csv
+      csv_to_facts:
+        src: '{{ playbook_dir }}/vmmelag.csv'
+      tags: vrni
+
+
+
+    - name: Activate Enhanced LAG on EPG via REST
+      aci_rest:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        path: /api/mo/uni.json
+        method: post
+        content: |
+         {"fvRsDomAtt":{"attributes": {"dn": "{{ item.dnname }}",
+         "children":[{"fvAEPgLagPolAtt":{"attributes":{"annotation":""},
+         "children":[{"fvRsVmmVSwitchEnhancedLagPol":{"attributes":{"annotation":"","tDn":"uni/vmmp-VMware/dom-DVS_OLD/vswitchpolcont/enlacplagp-lagNX"}}}]}}]}}
+          }
+      delegate_to: localhost
+      loop: '{{ spreadsheet }}'
+      loop_control:
+        pause: 1
+      tags: vrni
+
+  
