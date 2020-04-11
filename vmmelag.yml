@@ -33,13 +33,13 @@
         path: /api/mo/uni.json
         method: post
         content: |
-          {"fvAEPg":{"attributes":{"dn":"{{ item.epgname }}",
+          {"fvAEPg":{"attributes":{"dn":"{{ item.epgname }}"},
           "children":[{"fvRsDomAtt":{"attributes":{"tDn":"uni/vmmp-VMware/dom-vmm-dvs001"},
           "children":[{"vmmSecP":{"attributes":{}}},
           {"fvAEPgLagPolAtt":{"attributes":{},
           "children":[{"fvRsVmmVSwitchEnhancedLagPol":{"attributes":{
-          "tDn":"uni/vmmp-VMware/dom-vmm-dvs001/vswitchpolcont/enlacplagp-lagNX"}}}]}}]}}]}}}
-          
+          "tDn":"uni/vmmp-VMware/dom-vmm-dvs001/vswitchpolcont/enlacplagp-lagNX"}}}]}}]}}]}}
+
       delegate_to: localhost
       loop: '{{ spreadsheet }}'
       loop_control:
