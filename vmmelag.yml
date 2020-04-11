@@ -34,7 +34,7 @@
         method: post
         content: |
          {"fvAEPg":{"attributes":{"dn":"{{ item.dnname }}"},
-         "children":[{"fvRsDomAtt":{"attributes":{"annotation":""},
+         "children":[{"fvRsDomAtt":{"attributes":{"tDn":"uni/vmmp-VMware/dom-vmm-dvs001"},
          "children":[{"fvAEPgLagPolAtt":{"attributes":{"annotation":""},
          "children":[{"fvRsVmmVSwitchEnhancedLagPol":{"attributes":{"annotation":"","tDn":"uni/vmmp-VMware/dom-vmm-dvs001/vswitchpolcont/enlacplagp-lagNX"}}}]}}]}}]}}
          
