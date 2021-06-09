@@ -1,0 +1,57 @@
+
+moquery -c fvAEPg -x 'rsp-subtree=children' | grep xxx voir les vlan ou sont deployé ou les serveurs
+
+show coop internal info ip-db | grep 'IP address'  --> endpoint.txt  Voir toute les IP de la Fabric
+Classes des différents drop
+https://www.cisco.com/c/en/us/support/docs/cloud-systems-management/application-policy-infrastructure-controller-apic/210539-Explanations-of-Packet-Drop-Faults-in-AC.html
+moquery -c eqptIngrDropPkts5min   --> voir tout les CRC sur les interfaces
+moquery -c eqptIngrDropPkts5min | egrep '^errorCum'| egrep  -v '1'  --> voir tout les CRC sur les interfaces avec erruer
+moquery -c l2IngrPkts5min -f 'l2.IngrPkts5min.dropRate>"10"' | egrep '^dn|^drop*'  --> voir tout les drop active sur un vlan
+ moquery -c eqptIngrPkts5min -f 'eqpt.IngrPkts5min.unicastRate>"10000"' | egrep '^dn|^unicastRate'  --> les rates des packets au dessus de 10 000
+moquery -c ethpmPhysIf -x 'query-target-filter=eq(ethpmPhysIf.operSt,"down") order-by=ethpmPhysIf.dn|asc' | egrep "dn\b" -> tout les port DOWN
+moquery -c l1PhysIf -x 'query-target-filter=eq(l1PhysIf.usage,"discovery") order-by=l1PhysIf.dn|asc' | egrep "dn|discovery" --> Tout les port down et non utilisé
+
+moquery -c ethpmPhysIf -x 'query-target-filter=eq(ethpmPhysIf.operSt,"down") order-by=ethpmPhysIf.dn|asc' | egrep "usage|dn\b"   -->afficher usage epg/discovery
+
+moquery -c fvAEPg  | grep 'name ' --> All EPG
+
+
+DC4apic1# moquery -c fvStPathAtt | grep dn | grep 6475  --> Ou se trouve un serveur sur quel Leaf/port
+DC4apic1#  moquery -c infraHPortS -x 'rsp-subtree=children' | grep PLP116 -B 35 | grep 'name \|dn\|tDn'  --> ou se trouve le server (Leaf + PORT)
+
+  moquery -c fvAEPg -x 'rsp-subtree=children' | grep F3100D-TIN1-04G-BACKUP-C1U2-IBE1 | grep dn --> show run interface pouyr voir les trunk
+moquery -c fvAEPg -x 'rsp-subtree=children' 
+ moquery -c fvAEPg -x 'target-subtree-class=fvRsDomAtt' 
+  moquery -c fvAEPg -x 'query-target-filter=
+  
+  moquery -c fvAEPg -x 'rsp-subtree=children' -f 'fv.AEPg.dn=="uni/tn-LEGACY/ap-INTERNAL-HOSTING/epg-EA3150-STG_DLA"' | grep dn
+
+moquery -c faultInst | egrep -e "^descr" | sort | uniq -c  --> Sortir tout les LOG
+
+moquery -c faultInst -f 'fault.Inst.code=="F0603"' | grep dn  --> recupère tout les PO en Individual
+moquery -c fvRsVmmVSwitchEnhancedLagPol | grep tDn   --> Sortir le LagNXC
+
+moquery -c fvRsDomAtt -f 'fv.RsDomAtt.tDn=="uni/vmmp-VMware/dom-POC-VCE0511-Credentials"' -x 'rsp-subtree=children'    --> Sortir tout les children du VMM domaine
+
+moquery -c infraHPortS -f 'infra.HPortS.dn =="uni/infra/accportprof-LEAF_1217_INT/hports-1_15-typ-range"'  --> vérifier si interface est créé 
+
+moquery -c infraAccBndlGrp | grep dn  --> Toutes les policy groupes 
+
+ moquery -c fvRsDomAtt   --> Tout les Domaine
+moquery -c infraRsAccBaseGrp -d uni/infra/accportprof-LEAF_1103_INT -f 'infra.RsAccBaseGrp.dn=="uni/infra/accportprof-LEAF_1103_INT/hports-1_12-typ-range/rsaccBaseGrp"'  --> On recupere le serveur dessus 
+
+moquery -c fvStPathAtt  --> quel EPG est utilisé par le policy groupe 
+
+http://intranet-ipc.esi.adp.com/intranet/webservice/apiv2/network/patch_server.php//leaf?server=DC4PRHCIHST0200
+
+http://intranet-ipc.esi.adp.com/intranet/webservice/apiv2/provisioning/serverrecord.php/LX4613B
+
+cmd='/ehc/fs1/softs/network_tools/bin/ansible-playbook -i aciDC4_hosts esxi_prov_1897_02.yml --extra-vars "policy_group=' + Policy_Group + ' leaf_interface_profile_a=' + leaf_interface_profile_a + ' leaf_interface_profile_b=' + leaf_interface_profile_b + ' access_port_selector_a=' + access_port_selector_a + ' from=' + from + ' to=' + to + ' leafs=' + leafs + ' HOST_ETH1=' + HOST_ETH1+ ' HOST_ETH2=' + HOST_ETH2 + '"';
+System.log(cmd);
+
+
+MOQUERY pour delete quelques fault specific 
+ 
+moquery -c faultInst -f 'fault.Inst.code=="F0467"' | egrep 'topology\/pod-[0-9]+\/node-[0-9]+\/local\/svc-policyelem-id-[0-9]+\/uni\/epp\/fv-\[[0-9a-zA-Z\/-]+\]\/nwissues\/fault-F0467' | sed 's/dn.*:.//g' | xargs -n 1 -I {} icurl -g -X POST http://localhost:7777/testapi/mo/%7b%7d.xml-d @staleFaultsToBeDeleted.xml
+
+moquery -c faultInst -f 'fault.Inst.code=="F0467"' | egrep 'topology\/pod-[0-9]+\/node-[0-9]+\/local\/svc-policyelem-id-[0-9]+\/uni\/epp\/fv-\[[0-9a-zA-Z\/-]+\]\/nwissues\/fault-F0467' | sed 's/dn.*:.//g'   | xargs -n 1 -I {} icurl -g -X POST http://localhost:7777/testapi/mo/%7b%7d.xml-d @staleFaultsToBeDeleted.xml
