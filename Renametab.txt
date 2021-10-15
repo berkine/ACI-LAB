@@ -1,0 +1,55 @@
+#$language = "VBScript"
+#$interface = "1.0"
+
+
+Sub Main ()
+    On Error Resume Next
+	Set tab = crt.GetScriptTab()
+	tab.Screen.Synchronous = True
+	tab.Screen.IgnoreEscape = True
+	
+	Dim prompts(3)
+	
+	
+	'RedHat
+	Set prompt = New RegExp
+	prompt.Pattern = "^\[[a-zA-Z0-9_\-]+@([a-zA-Z0-9_\-]+) ~\]\$ " & chr(13) & "$"
+	prompt.Multiline = True
+	Set prompts(0) = prompt
+	'IOS
+	Set prompt = New RegExp
+	prompt.Pattern = "^([a-zA-Z0-9_.~\-]+)[>#]" & chr(13) & "?$"
+	prompt.Multiline = True
+	Set prompts(1) = prompt
+	'NX-OS
+	Set prompt = New RegExp
+	prompt.Pattern = "^([a-zA-Z0-9_.~\-]+)# $" 
+	prompt.Multiline = True
+	Set prompts(2) = prompt
+	'Fortinet
+	Set prompt = New RegExp
+	prompt.Pattern = "^([a-zA-Z0-9_.~\-]+) # $" 
+	prompt.Multiline = True
+	Set prompts(3) = prompt
+	
+	
+	
+	'lx3058
+	'Set prompt = New RegExp
+	'prompt.Pattern = "(.*)" & chr(13)
+	'prompt.Multiline = True
+	'Set prompts(3) = prompt
+
+	Do
+		text = tab.Screen.ReadString(chr(10))
+		For Each prompt In prompts
+			'x = msgbox (text)
+			Set matches = prompt.Execute(text)
+			If matches.Count > 0 Then
+				tab.Caption = matches(0).SubMatches(0)
+				Exit For
+			End If
+		Next
+	Loop
+End Sub
+	
