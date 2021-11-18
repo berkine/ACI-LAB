@@ -1,0 +1,36 @@
+FRIBKLCEG0001S
+
+interface Ethernet1/7
+switchport trunk allowed vlan add 7
+switchport trunk allowed vlan add 500
+switchport trunk allowed vlan add 511
+switchport trunk allowed vlan add 506
+switchport trunk allowed vlan add 508
+switchport trunk allowed vlan add 568
+switchport trunk allowed vlan add 569
+switchport trunk allowed vlan add 514
+switchport trunk allowed vlan add 513
+switchport trunk allowed vlan add 610
+switchport trunk allowed vlan add 611
+switchport trunk allowed vlan add 612
+switchport trunk allowed vlan add 613
+switchport trunk allowed vlan add 614
+switchport trunk allowed vlan add 615
+
+
+FRIBKLCEG0002S
+
+interface Ethernet1/7
+switchport trunk allowed vlan remove 500
+switchport trunk allowed vlan remove 511
+switchport trunk allowed vlan remove 506
+switchport trunk allowed vlan remove 568
+switchport trunk allowed vlan remove 569
+switchport trunk allowed vlan remove 514
+switchport trunk allowed vlan remove 513
+switchport trunk allowed vlan remove 610
+switchport trunk allowed vlan remove 611
+switchport trunk allowed vlan remove 612
+switchport trunk allowed vlan remove 613
+switchport trunk allowed vlan remove 614
+switchport trunk allowed vlan remove 615
