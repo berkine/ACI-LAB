@@ -1,0 +1,46 @@
+VRF seulement presente sur NC et GrabelsNous allons creer les vlans HSRP + ospf + vrf sur MOP et GrabelsPuis basculer le transit des VLANs associés à la vrf vrf_extranet du sens CLI->COL->GRA vers le sens CLI->MOP-GRA pour éliminer le transit par Collégien
+################################
+Etape 1 : Verification
+################################Sur tout les Nexussh hsrp brief | i Vlan600|Vlan601|Vlan602|Vlan603|Vlan604|Vlan650|Vlan900|Vlan901
+show vlan id 600-604,650,900-901
+ show spanning-tree vlan  600-604,900-901 root
+
+interfaces vlan 601 et 900 non configure à grabels qui sert de référence. Donc on en configurera ceux les VLANs600,602-604,901 sur Montpellier
+
+################################
+Etape 2 : propagation des VLANs pour HSRP en L2
+################################
+  ##### Creation et propgation des vlans HSRP sur Grabels et Montpellier ######Les interfaces VLANs associés à la vrf vrf_extranet sont déjà shut sur les équipements de CollégienCréation et propagation des VLANs et HSRP sur Clichy->Montpellier->Grabels********************************************************FRIBKLCCH0001S et FRIBKLCCH0002S#################################spanning-tree vlan 600 priority 24576spanning-tree vlan 602 priority 24576spanning-tree vlan 603 priority 24576spanning-tree vlan 604 priority 24576spanning-tree vlan 901 priority 24576spanning-tree vlan 600 priority 28672spanning-tree vlan 602 priority 28672spanning-tree vlan 603 priority 28672spanning-tree vlan 604 priority 28672spanning-tree vlan 901 priority 28672interface ethernet1/7 switchport trunk allowed vlan add 600 switchport trunk allowed vlan add 602 switchport trunk allowed vlan add 603 switchport trunk allowed vlan add 604 switchport trunk allowed vlan add 901FRIBKLMPL0001S et FRIBKLMPL0002S################################spanning-tree vlan 600 priority 45056spanning-tree vlan 602 priority 45056spanning-tree vlan 603 priority 45056spanning-tree vlan 604 priority 45056spanning-tree vlan 901 priority 45056spanning-tree vlan 600 priority 49152spanning-tree vlan 602 priority 49152spanning-tree vlan 603 priority 49152spanning-tree vlan 604 priority 49152spanning-tree vlan 901 priority 49152vlan 600  name IP_Services_access_(KD)vlan 602  name ESX_IP_Mgmtvlan 603  name VMOTION/HA_IP_Mgmtvlan 604  name AD_Services_Server_IPvlan 901  name Interco_IP_services_(KL)
+interface Ethernet1/9 switchport trunk allowed vlan add 600 switchport trunk allowed vlan add 602 switchport trunk allowed vlan add 603 switchport trunk allowed vlan add 604 switchport trunk allowed vlan add 901 interface port-channel1 switchport trunk allowed vlan add 600 switchport trunk allowed vlan add 602 switchport trunk allowed vlan add 603 switchport trunk allowed vlan add 604 switchport trunk allowed vlan add 901
+FRIBKLGRA0001S et FRIBKLGRA0002S################################interface port-channel1 switchport trunk allowed vlan add 600 switchport trunk allowed vlan add 602 switchport trunk allowed vlan add 603 switchport trunk allowed vlan add 604 switchport trunk allowed vlan add 901 # Suppression vers CollegienFRIBKLCCH0001S et FRIBKLCCH0002S#################################interface po2 switchport trunk allowed vlan remove 600 switchport trunk allowed vlan remove 602 switchport trunk allowed vlan remove 603 switchport trunk allowed vlan remove 604 switchport trunk allowed vlan remove 901FRIBKLGRA0001S et FRIBKLGRA0002S################################interface ethernet1/9 switchport trunk allowed vlan remove 600 switchport trunk allowed vlan remove 602 switchport trunk allowed vlan remove 603 switchport trunk allowed vlan remove 604 switchport trunk allowed vlan remove 901  
+Etape 3 : Creation de la VRF (VRF)  ## pas de route static pour le moment
+################################FRIBKLMPL0001S et FRIBKLMPL0002S
+vrf context vrf_extranet################################Etape 4 : Creation des interfaces VLANs pour le futur sur Montpellier################################
+FRIBKLMPL0001Sinterface Vlan600  shutdown  description IP_Services_access_(KD)  vrf member vrf_extranet  no ip redirects  ip address 172.25.36.4/25  hsrp version 2  hsrp use-bia  hsrp 600    preempt    priority 75    ip 172.25.36.1
+interface Vlan602  shutdown  description ESX IP Management  vrf member vrf_extranet  no ip redirects  ip address 172.25.37.4/27  hsrp version 2  hsrp use-bia  hsrp 602    preempt    priority 75    ip 172.25.37.1interface Vlan603  shutdown  description Servers VLAN  vrf member vrf_extranet  no ip redirects  ip address 172.25.37.36/27  hsrp version 2  hsrp use-bia  hsrp 603    preempt    priority 75    ip 172.25.37.33
+interface Vlan604  shutdown  description Servers VLAN  vrf member vrf_extranet  no ip redirects  ip address 172.25.37.68/27  hsrp version 2  hsrp use-bia  hsrp 604    preempt    priority 75    ip 172.25.37.65interface Vlan901  shutdown  description Interco_IP_services  vrf member vrf_extranet  no ip redirects  ip address 172.25.33.7/28  hsrp version 2  hsrp use-bia  hsrp 901    preempt    priority 75    ip 172.25.33.4FRIBKLMPL0002S
+interface Vlan600  shutdown  description IP_Services_access_(KD)  vrf member vrf_extranet  no ip redirects  ip address 172.25.36.5/25  hsrp version 2  hsrp use-bia  hsrp 600    preempt    priority 70    ip 172.25.36.1interface Vlan602  shutdown  description ESX IP Management  vrf member vrf_extranet  no ip redirects  ip address 172.25.37.5/27  hsrp version 2  hsrp use-bia  hsrp 602    preempt    priority 70    ip 172.25.37.1interface Vlan603  shutdown  description Servers VLAN  vrf member vrf_extranet  no ip redirects  ip address 172.25.37.37/27  hsrp version 2  hsrp use-bia  hsrp 603    preempt    priority 70    ip 172.25.37.33interface Vlan604  shutdown  description Servers VLAN  vrf member vrf_extranet  no ip redirects  ip address 172.25.37.69/27  hsrp version 2  hsrp use-bia  hsrp 604    preempt    priority 70    ip 172.25.37.65interface Vlan901  shutdown  description Interco_IP_services  vrf member vrf_extranet  no ip redirects  ip address 172.25.33.8/28  hsrp version 2  hsrp use-bia  hsrp 901    preempt    priority 70    ip 172.25.33.4
+################################
+Etape 4 : activation de HSRP 
+################################
+|FRIBKLMPL0001S
+interface Vlan600
+no shut
+interface Vlan602
+no shut
+interface Vlan603
+no shut
+interface Vlan604
+no shut
+interface Vlan901
+no shut
+FRIBKLMPL0002S
+interface Vlan600no shutinterface Vlan602no shutinterface Vlan603no shutinterface Vlan604no shutinterface Vlan901no shut################################
+Etape 5 : Injection de la route statique sur Montpellier
+################################FRIBKLMPL0001Svrf context vrf_extranet  ip route 0.0.0.0/0 172.25.33.1
+
+FRIBKLMPL0002Svrf context vrf_extranet  ip route 0.0.0.0/0 172.25.33.1
+################################Etape 6 : Suppression des vlan HSRP du entre  Collégien et GrabelsFRIBKLCEG0001S et FRIBKLCEG0002S################################interface ethernet1/7 switchport trunk allowed vlan remove 600 switchport trunk allowed vlan remove 601 switchport trunk allowed vlan remove 602 switchport trunk allowed vlan remove 603 switchport trunk allowed vlan remove 604 switchport trunk allowed vlan remove 650 switchport trunk allowed vlan remove 900 switchport trunk allowed vlan remove 901interface po2 switchport trunk allowed vlan remove 600 switchport trunk allowed vlan remove 601 switchport trunk allowed vlan remove 602 switchport trunk allowed vlan remove 603 switchport trunk allowed vlan remove 604 switchport trunk allowed vlan remove 650 switchport trunk allowed vlan remove 900 switchport trunk allowed vlan remove 901
+Etape 7 : Fin de l'operation debut des test
+################################
+Propagation des VLANsActivation des VLANsSpanning-Tree (Clichy root)verifiaction HSRP (Clichy primaire / secondaire, Montpellier et Grabels en listen)Test des flux (ping, traceroute).

@@ -1,0 +1,42 @@
+VRF seulement presente sur CLI/COL/GRA, elle sera à créer sur MOP,Nous allons creer les vlans HSRP + ospf + vrf sur Montpellier
+################################
+Etape 1 : Verification
+################################
+Sur tout les Nexus (voir schéma)
+ show ip interface brief vrf Interco_Partner_MPLS
+show ip ospf neighbors vrf Interco_Partner_MPLS
+ show ip route vrf Interco_Partner_MPLS
+ vlan HSRP sur NC | i 557 VLAN OSPF sur NC clichy1 559, 563 VLAN OSPF sur NC clichy1 558, 563 VLAN OSPF sur NC Collegien1 562, 563 VLAN OSPF sur NC Collegien1 561, 563
+################################
+Etape 2 : propagation des VLANs pour OSPF et HSRP en L2
+################################
+  Le vlan 563 sera propagé vers Montpellier 1 et 2 Le vlan 559 sera propagé vers Montpellier 1 Le vlan 558 sera propagé vers Montpellier 2 
+  
+  ##### Creation et propgation des vlans OSPF sur Montpellier ######Suppression des vlan ospf du peer link et vers Grabels
+FRIBKLMPL0001Ssuppression Niv 2 avec Mopinterface port-channel1 switchport trunk allowed vlan remove 563 switchport trunk allowed vlan remove 558 switchport trunk allowed vlan remove 559suppression dans le peer linkinterface port-channel3 switchport trunk allowed vlan remove 563 switchport trunk allowed vlan remove 558 switchport trunk allowed vlan remove 559vlan 563  name b2b_Interco_NC_transit_Area_1vlan 559  name Interco_Partner#interface Ethernet1/9# switchport trunk allowed vlan add 563# switchport trunk allowed vlan add 559Propage l'ospf vers GRAinterface Ethernet2/5 switchport trunk allowed vlan add 563   interface Ethernet1/18 switchport trunk allowed vlan add 563   FRIBKLMPL0002Sinterface port-channel1 switchport trunk allowed vlan remove 563 switchport trunk allowed vlan remove 558 switchport trunk allowed vlan remove 559suppression dans le peer linkinterface port-channel3 switchport trunk allowed vlan remove 563 switchport trunk allowed vlan remove 558 switchport trunk allowed vlan remove 559 vlan 563  name b2b_Interco_NC_transit_Area_1vlan 558  name Interco_Partner#interface Ethernet1/9# switchport trunk allowed vlan add 563# switchport trunk allowed vlan add 558  Propage l'ospf vers GRAinterface Ethernet2/5 switchport trunk allowed vlan add 563   interface Ethernet1/18 switchport trunk allowed vlan add 563    FRIBKLCCH0001S#interface Ethernet1/9# switchport trunk allowed vlan add 563# switchport trunk allowed vlan add 559FRIBKLCCH0002S#interface Ethernet1/9# switchport trunk allowed vlan add 563# switchport trunk allowed vlan add 558Propager l'ospf de GRA vers MOPFRIBKLGRA0001Sinterface Ethernet2/5 switchport trunk allowed vlan add 563  FRIBKLGRA0002Sinterface Ethernet2/5 switchport trunk allowed vlan add 563  Vérification par ou on passe pour le vlan 563On casse l'ospf entre Clichy et Collegien#FRIBKLCCH0001S#interface Ethernet1/6#switchport trunk allowed vlan remove 563FRIBKLCCH0002S#interface Ethernet1/6# switchport trunk allowed vlan remove 563A cette étape nous avons le U pour le VLAN 563 et les VLAN 558 et 559 propagés de Clichy à Montpellier 
+##### Creation et propgation des vlans HSRP sur Montpellier #######Ajout vers MontpellierFRIBKLMPL0001Sspanning-tree vlan 557 priority 45056vlan 557  name IntercoPartner_NC1_NC2_interlinkinterface po1 switchport trunk allowed vlan add 557FRIBKLMPL0002Sspanning-tree vlan 557 priority 49152vlan 557  name IntercoPartner_NC1_NC2_interlinkinterface po1 switchport trunk allowed vlan add 557FRIBKLGRA0001Sinterface po1 switchport trunk allowed vlan add 557FRIBKLGRA0002Sinterface po1 switchport trunk allowed vlan add 557#suppression de GRA#FRIBKLGRA0001S#interface e1/9# switchport trunk allowed vlan remove 557#FRIBKLGRA0002S#interface e1/9# switchport trunk allowed vlan remove 557 
+################################
+Etape 3 : Creation de la VRF (VRF + OSPF)  ## pas de route static pour le moment
+################################FRIBKLMPL0001S
+vrf context Interco_Partner_MPLSrouter ospf 1 vrf Interco_Partner_MPLS router-id 10.3.1.1 default-information originate route-map OPSF_metricFRIBKLMPL0002Svrf context Interco_Partner_MPLSrouter ospf 1 vrf Interco_Partner_MPLS router-id 10.3.1.2 default-information originate route-map OPSF_metric################################Etape 4 : Creation des interfaces VLANs################################
+FRIBKLMPL0001Sinterface Vlan559  shutdown  description Interco_Partner  vrf member Interco_Partner_MPLS  ip address 172.25.28.19/28   ip router ospf 1 area 0.0.0.1interface Vlan563  shutdown  description b2b_Interco_NC_transit_Area_1  vrf member Interco_Partner_MPLS  ip address 172.25.28.199/28  ip router ospf 1 area 0.0.0.1interface Vlan557  shutdown  description Interco_Partner_NC1_NC2_interlink  vrf member Interco_Partner_MPLS  ip address 172.25.29.9/24  ip ospf passive-interface  ip router ospf 1 area 0.0.0.1  hsrp version 2  hsrp use-bia  hsrp 557    priority 75    preempt    ip 172.25.29.1 
+FRIBKLMPL0002Sinterface Vlan558  shutdown  description Interco_Partner  vrf member Interco_Partner_MPLS  ip address 172.25.28.3/28  ip router ospf 1 area 0.0.0.1
+interface Vlan563  shutdown  description b2b_Interco_NC_transit_Area_1  vrf member Interco_Partner_MPLS  ip address 172.25.28.200/28  ip router ospf 1 area 0.0.0.1interface Vlan557  shutdown  description Interco_Partner_NC1_NC2_interlink  vrf member Interco_Partner_MPLS  ip address 172.25.29.10/24  ip ospf passive-interface  ip router ospf 1 area 0.0.0.1  hsrp version 2  hsrp use-bia  hsrp 557    priority 70    preempt    ip 172.25.29.1 
+################################
+Etape 5 : activation de l'ospf 
+################################
+#FRIBKLMPL0001S#interface Vlan563#no shut #interface Vlan559#no shut #FRIBKLMPL0002S#interface Vlan563#no shut #interface Vlan558#no shut 
+
+################################
+Etape 6 : Activation des VLAN HSRP 
+################################
+FRIBKLMPL0001Sshow hsrp brief | i 557interface Vlan557no shutdownFRIBKLMPL0002Sinterface Vlan557no shutdown
+################################
+Etape 7 : Injection des routes statiques sur Montpellier 
+################################FRIBKLMPL0001S
+vrf context Interco_Partner_MPLS  ip route 0.0.0.0/0 172.25.29.6FRIBKLMPL0002Svrf context Interco_Partner_MPLS  ip route 0.0.0.0/0 172.25.29.6
+################################
+Etape 9 : Fin de l'operation debut des test
+################################
+
+Propagation des VLANsActivation des VLANsSpanning-Tree (Clichy root)verifiaction HSRP (Clichy primaire / secondaire, Montpellier et Grabels en listen)Test des flux (ping, traceroute).
