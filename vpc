@@ -1,0 +1,10 @@
+The VPC peer gateway and peer-router feature should help achieve this.
+ 
+VPC peer-gateway is enabled to make both N9K switches the act as the gateway and be able to transmit packets in and out of the peer link without violating the VPC loop rule. VPC peer-router is a feature used to enable L3 on the peer link . You can then enable OSPF on the SVI an peer across the VPC
+ 
+Some things to remember:
+1.	The Routing/Layer 3 over vPC feature does not add support for a PIM adjacency over a vPC VLAN. 
+2.	The feature is available on the Nexus 9500 from 7.0(3)I5(1). However N9500 with Cloud Scale (Cisco’s proprietary ASIC) ASICs on the line cards (N9K-X9732C-EX and N9K-X97160YC-EX) have a bug CSCvw16965 that is fixed in 9.3.9. I would advise you to go with a more latest code rev
+https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus9000/sw/recommended_release/b_Minimum_and_Recommended_Cisco_NX-OS_Releases_for_Cisco_Nexus_9000_Series_Switches.html Kaja and Sanchita will help you with the scrub so you can then implement it
+3.	BFD echo over OSPF on a VPC link is not supported. 
+ 
